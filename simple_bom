@@ -1,0 +1,6 @@
+Arduino Nano: I use an Elegoo clone sourced from Amazon. Got 3 chips for about $15US.
+L298N Motor Controller: I used a ShillehTek version of this chip, but any version should work. This will most likely be replaced eventually with a Cytron MDD10A just for efficiency, but the L298N works great.
+12V Power Supply: This needs to connect to the Motor Controller to power the motors. In testing, I'm just using a Bench Power Supply but will eventually use a LiPo Battery
+5V Power Supply: This will connect to the Nano. I am using the 8.4V that are coming off of my Pololu Maestro, and so it is going directly into the VIN pin on the Nano. This seems to work just fine.
+Wago 3-pin Connector: Any connector will do, this is primarily to ensure both the Nano and the L298N share a common ground. Very important.
+Various jumper cables and wires: You'll need to connect the pins on the Nano to the pins on the L298N, having a good mix of these will be useful. I plan to have these two chips pretty close together and so they don't need to be very long.
