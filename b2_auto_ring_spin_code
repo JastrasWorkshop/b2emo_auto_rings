@@ -1,0 +1,108 @@
+// Organic motor behavior with staggered timing and LED indicator
+// For Arduino Nano + L298N
+
+// Motor A pins
+const int enA = 9;
+const int in1 = 7;
+const int in2 = 6;
+
+// Motor B pins
+const int enB = 10;
+const int in3 = 5;
+const int in4 = 4;
+
+// LED indicator pin
+const int ledPin = 13;
+
+void setup() {
+  // Set motor pins as outputs
+  pinMode(enA, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+
+  pinMode(enB, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+
+  // LED pin
+  pinMode(ledPin, OUTPUT);
+
+  // Random seed
+  randomSeed(analogRead(A0));
+}
+
+void loop() {
+  // Randomly choose which motors will spin
+  bool motorA_on = random(0, 2);
+  bool motorB_on = random(0, 2);
+
+  // Make sure at least one motor is selected
+  if (!motorA_on && !motorB_on) {
+    if (random(0, 2)) {
+      motorA_on = true;
+    } else {
+      motorB_on = true;
+    }
+  }
+
+  // Random direction and speed
+  int dirA = random(0, 2);
+  int dirB = random(0, 2);
+  int speedA = random(100, 256);  // PWM: 100–255
+  int speedB = random(100, 256);
+
+  // Random spin duration (in milliseconds)
+  int spinTimeA = random(500, 2001); // 0.5–2 sec
+  int spinTimeB = random(500, 2001);
+
+  // Randomly delay either motor A or B
+  bool delayMotorA = random(0, 2); // true = A is delayed
+  int delayAmount = random(500, 2001); // 0.5–2 sec
+
+  int delayAStart = delayMotorA ? delayAmount : 0;
+  int delayBStart = delayMotorA ? 0 : delayAmount;
+
+  // Total run time (longest duration + delay)
+  int runDuration = max(spinTimeA + delayAStart, spinTimeB + delayBStart);
+
+  // Start tracking time
+  unsigned long startTime = millis();
+
+  while (millis() - startTime < runDuration) {
+    unsigned long elapsed = millis() - startTime;
+
+    // Start motor A after its delay
+    if (motorA_on && elapsed >= delayAStart && elapsed < delayAStart + spinTimeA) {
+      digitalWrite(in1, dirA == 0 ? HIGH : LOW);
+      digitalWrite(in2, dirA == 0 ? LOW : HIGH);
+      analogWrite(enA, speedA);
+    }
+
+    // Start motor B after its delay
+    if (motorB_on && elapsed >= delayBStart && elapsed < delayBStart + spinTimeB) {
+      digitalWrite(in3, dirB == 0 ? HIGH : LOW);
+      digitalWrite(in4, dirB == 0 ? LOW : HIGH);
+      analogWrite(enB, speedB);
+    }
+
+    // Blink LED every 100 ms
+    digitalWrite(ledPin, (elapsed / 100) % 2 == 0 ? HIGH : LOW);
+
+    delay(10); // Allow CPU breathing room
+  }
+
+  // Stop both motors
+  analogWrite(enA, 0);
+  analogWrite(enB, 0);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+
+  // Turn off LED
+  digitalWrite(ledPin, LOW);
+
+  // Pause before next action (0.5-1.5 seconds)
+  int restTime = random(500, 1500);
+  delay(restTime);
+}
